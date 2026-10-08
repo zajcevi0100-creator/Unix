@@ -4,20 +4,20 @@
 set -u
 
 [ $# -eq 1 ] || {
-	echo "Ispolzovanie $0 ishodniy fail" >&2
+	echo "Использование: $0 Исходный файл" >&2
 	exit 1
 }
 src=$1
 
 [ -f "$src" ] && [ -r "$src" ] || {
-	echo "File ne naiden: $src" >&2
+	echo "Файл не найден: $src" >&2
 	exit 2
 }
 
 outname=$(sed -n 's/.*Output: *\([^ ]*\).*/\1/p' "$src" | head -n 1)
 
 [ -n "$outname" ] || {
-	echo "Не найдене комментарий Output: в $src" >&2
+	echo "Не найден комментарий Output: в $src" >&2
 	exit 3
 }
 
@@ -51,28 +51,39 @@ tmpdir=$(mktemp -d  "${TMPDIR:-/tmp}/build.XXXXXX") || {
 	exit 4
 }
 
+command -v cc >/dev/null 2>&1 || {
+echo "Компилятор cc не найден" >&2
+exit 5
+}
 case "$src" in 
 	*.c)
 		cc -o "$tmpdir/$outname"  "$src" || {
-			echo "Oshibka kompilacii C" >&2
+			echo "Ошибка компиляции C" >&2
 			exit 5
 		}
 		;;
 	*.cc|*.cpp|*.cxx|*.C)
 		c++ -o "$tmpdir/$outname" "$src" || {
-			echo  "Pshibka komp C++" >&2
+			echo  "Ошибка компиляции C++" >&2
 			exit 5
 		}
 		;;
 		*.tex)
+		jobname=${outname%.pdf}
 		pdflatex -interaction=nonstopmode -halt-on-error \
+			-jobname="$jobname" \
 			-output-directory="$tmpdir" "$src" > "$tmpdir/tex.log" 2>&1 || {
-				echo "Oshibka komp tex" >&2
+				echo "Ошибка компиляции TeX" >&2
 				exit 5
 		}
+		case "$outname" in
+			*.pdf) [ -f "$tmpdir/$outname" ] || mv "$tmpdir/$jobname.pdf" "$tmpdir/$outname" ;;
+                        *.dvi) [ -f "$tmpdir/$outname" ] || mv "$tmpdir/$jobname.pdf" "$tmpdir/$outname" ;; 
+                        *) [ -f "$tmpdir/$outname" ] || mv "$tmpdir/$jobname.pdf" "$tmpdir/$outname" ;;
+		esac 
 		;;
 	*)
-		echo "Neppoderzh tip: $src" >&2
+		echo "Неподдерживаемый тип файла: $src" >&2
 		exit 5
 		;;
 esac
@@ -83,7 +94,7 @@ esac
 }
 cp -p "$tmpdir/$outname" "$src_dir/$outname" || {
 	echo "Не удалось скопировать результать" >&2
-	exit 6
+	exit 7
 }
 
 exit 0
