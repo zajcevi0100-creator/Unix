@@ -73,7 +73,7 @@ case "$src" in
 			exit 5
 		}
 		;;
-		*.tex)
+	*.tex)
                 command -v pdflatex >/dev/null 2>&1 || { 
                          echo "Компилятор pdflatex не найден" >&2
                          exit 8
@@ -91,7 +91,7 @@ case "$src" in
 				exit 5
 		}
 		[ -f "$tmpdir/$outname" ] || mv "$tmpdir/$jobname.pdf" "$tmpdir/$outname" || {
-			echo "Не удалось получить $outname >&2
+			echo "Не удалось получить $outname" >&2
 			exit 6
 		} 
 		;; 
