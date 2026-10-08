@@ -74,16 +74,15 @@ case "$src" in
 		}
 		;;
 		*.tex)
-                command -v pdflatex> /dev/null 2>&1 || { 
+                command -v pdflatex >/dev/null 2>&1 || { 
                          echo "Компилятор pdflatex не найден" >&2
                          exit 8
 		}
 		case "$outname" in 
 			*.pdf) : ;;
-			*) outname = "$outname.pdf";;
+			*) outname="$outname.pdf";;
 		esac
 		jobname=${outname%.pdf}
-                command -v cc>/dev/null 2>&1 || { echo "Компилятор сс не найден" >&2; exit 8;}
 
 		pdflatex -interaction=nonstopmode -halt-on-error \
 			-jobname="$jobname" \
@@ -91,7 +90,10 @@ case "$src" in
 				echo "Ошибка компиляции TeX" >&2
 				exit 5
 		}
-		[ -f "$tmpdir/$outname" ] || mv "$tmpdir/$jobname.pdf" "$tmpdir/$outname" 
+		[ -f "$tmpdir/$outname" ] || mv "$tmpdir/$jobname.pdf" "$tmpdir/$outname" || {
+			echo "Не удалось получить $outname >&2
+			exit 6
+		} 
 		;; 
 	*)
 		echo "Неподдерживаемый тип файла: $src" >&2
