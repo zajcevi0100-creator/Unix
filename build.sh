@@ -77,3 +77,13 @@ case "$src" in
 		;;
 esac
 
+[ -f "$tmpdir/$outname" ] || {
+	echo "Конечный файл не создан: $outname" >&2
+	exit 6
+}
+cp -p "$tmpdir/$outname" "$src_dir/$outname" || {
+	echo "Не удалось скопировать результать" >&2
+	exit 6
+}
+
+exit 0
