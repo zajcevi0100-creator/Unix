@@ -51,7 +51,6 @@ tmpdir=$(mktemp -d  "${TMPDIR:-/tmp}/build.XXXXXX") || {
 	exit 4
 }
 
-
 case "$src" in 
 	*.c)
 		command -v cc >/dev/null 2>&1 || {
