@@ -39,8 +39,7 @@ cleanup_signal(){
 	exit $((128 + sig))
 }
 
-trap 'cleanup_exit' 0 
-
+trap 'cleanup_exit' 0  
 trap 'cleanup_signal 1' 1
 trap 'cleanup_signal 2' 2
 trap 'cleanup_signal 3' 3
@@ -55,25 +54,25 @@ tmpdir=$(mktemp -d  "${TMPDIR:-/tmp}/build.XXXXXX") || {
 case "$src" in 
 	*.c)
 		cc -o "$tmpdir/$outname"  "$src" || {
-			echo "Oshibka kompilacii C" >$2
+			echo "Oshibka kompilacii C" >&2
 			exit 5
 		}
 		;;
 	*.cc|*.cpp|*.cxx|*.C)
 		c++ -o "$tmpdir/$outname" "$src" || {
-			echo  "Pshibka komp C++" >$2
+			echo  "Pshibka komp C++" >&2
 			exit 5
 		}
 		;;
 		*.tex)
 		pdflatex -interaction=nonstopmode -halt-on-error \
-			-output-directory="$tmpdir" "$src" > "$tmpdir/tex.log" 2>$1 || {
-				echo "Oshibka komp tex" >$2
+			-output-directory="$tmpdir" "$src" > "$tmpdir/tex.log" 2>&1 || {
+				echo "Oshibka komp tex" >&2
 				exit 5
 		}
 		;;
 	*)
-		echo "Neppoderzh tip: $src" >$2
+		echo "Neppoderzh tip: $src" >&2
 		exit 5
 		;;
 esac
